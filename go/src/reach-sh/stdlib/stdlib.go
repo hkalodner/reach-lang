@@ -65,7 +65,8 @@ func Lt(x Type_uint256, y Type_uint256) Type_bool {
   return x.Cmp(y) < 0 }
 
 func Keccak256(x Type_uint256, y Type_uint256) Type_uint256 {
-  panic("XXX") }
+  hashed := solsha3.SoliditySHA3(solsha3.Uint256(x), solsha3.Uint256(y))
+  return new(big.Int).SetBytes(hashed) }
 
 func Assert( b Type_bool ) {
   if b {
