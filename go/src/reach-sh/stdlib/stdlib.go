@@ -1,9 +1,24 @@
 package stdlib
 
-type Type_bool bool
-type Type_uint256 int
-type Type_address int
-type Type_uint256arr []Type_uint256
+import (
+  "github.com/ethereum/go-ethereum/common"
+  "math/big"
+
+  "github.com/ethereum/go-ethereum/common/math"
+  solsha3 "github.com/miguelmota/go-solidity-sha3"
+)
+
+var (
+  bigZero = new(big.Int)
+  tt255   = math.BigPow(2, 255)
+  tt256   = math.BigPow(2, 256)
+  tt256m1 = new(big.Int).Sub(tt256, big.NewInt(1))
+)
+
+type Type_bool = bool
+type Type_uint256 = *big.Int
+type Type_address = common.Address
+type Type_uint256arr = []Type_uint256
 
 type Txn struct { 
      Balance Type_uint256
@@ -12,7 +27,7 @@ type Txn struct {
      From Type_address
      Data Msg }
 
-var Txn0 = Txn{ Balance: 0, Value: 0 }
+var Txn0 = Txn{ Balance: big.NewInt(0), Value: big.NewInt(0) }
 
 func Ite_uint256(c Type_bool, x Type_uint256, y Type_uint256) Type_uint256 {
   if c {
@@ -27,25 +42,27 @@ func Ite_bool(c Type_bool, x Type_bool, y Type_bool) Type_bool {
     return y } }
 
 func Eq(x Type_uint256, y Type_uint256) Type_bool {
-  return x == y }
+  return x.Cmp(y) == 0 }
 
 func Add(x Type_uint256, y Type_uint256) Type_uint256 {
-  return x + y }
-
+  return math.U256(new(big.Int).Add(x, y))
+}
 func Sub(x Type_uint256, y Type_uint256) Type_uint256 {
-  return x - y }
+  return math.U256(new(big.Int).Sub(new(big.Int).Add(x, tt256), y)) }
 
+// This currently panics if y == 0. What behavior should it have?
 func Div(x Type_uint256, y Type_uint256) Type_uint256 {
-  return x / y }
+  return new(big.Int).Div(x, y) }
 
+// This currently panics if y == 0. What behavior should it have?
 func Mod(x Type_uint256, y Type_uint256) Type_uint256 {
-  return x % y }
+  return new(big.Int).Mod(x, y) }
 
 func Gt(x Type_uint256, y Type_uint256) Type_bool {
-  return x > y }
+  return x.Cmp(y) > 0 }
 
 func Lt(x Type_uint256, y Type_uint256) Type_bool {
-  return x < y }
+  return x.Cmp(y) < 0 }
 
 func Keccak256(x Type_uint256, y Type_uint256) Type_uint256 {
   panic("XXX") }
